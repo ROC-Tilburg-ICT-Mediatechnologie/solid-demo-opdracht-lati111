@@ -18,16 +18,19 @@ class OrderRepositoryMysqli implements OrderRepository
         var_dump($this->load($orderID));
     }
 
-    public function calculateTotalSum($orderID) {
+    public function getItems($orderID) {
         $results = [];
         $mysqli = new mysqli($this->config->getDsn(), $this->config->getDBUser(), $this->config->getDBPassword());
         $statement = $mysqli->prepare("SELECT * FROM `item` WHERE orderID=:id");
         $statement->execute(array(":id" => $orderID));
         $statement->bind_result($result);
         $statement->fetch();
+        return $results;
+    }
 
+    public function calculateTotalSum($orderID) {
         $total = 0;
-        foreach($results as $result) {
+        foreach($this->getItems($orderID) as $result) {
             $total += $result["price"];
         }
         return $total;

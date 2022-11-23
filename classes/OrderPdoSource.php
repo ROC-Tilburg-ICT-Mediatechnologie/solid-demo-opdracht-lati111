@@ -14,16 +14,18 @@ class OrderRepositoryPdo implements OrderRepository
                 var_dump($this->load($orderID));
         }
 
-        public function calculateTotalSum($orderID) {
+        public function getItems($orderID) {
                 $pdo = new PDO($this->config->getDsn(), $this->config->getDBUser(), $this->config->getDBPassword());
                 $statement = $pdo->prepare("SELECT * FROM `item` WHERE orderID=:id");
                 $statement->bindParam(":orderID", $orderID);
                 $statement->execute();
-                $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $statement->fetchAll(PDO::FETCH_ASSOC);
+        }
 
+        public function calculateTotalSum($orderID) {
                 $total = 0;
-                foreach ($results as $result) {
-                        $total += $result["price"];
+                foreach ($this->getItems($orderID) as $item) {
+                        $total += $item["price"];
                 }
                 return $total;
         }
